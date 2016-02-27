@@ -1790,7 +1790,7 @@
 
                 if ((ia_data.live.dev_milestone === "live") && ia_data.live.hasOwnProperty("traffic") && ia_data.live.traffic.dates.length) {
                     var traffic = $("#ia_traffic").get(0).getContext("2d");
-                    var weekend_labels = this.getWeekends(ia_data.live.traffic.dates);
+                    //var weekend_labels = this.getWeekends(ia_data.live.traffic.dates);
                     var traffic_header =  ": " + this.sumCounts(ia_data.live.traffic.counts) + " queries total";
                     $("#queries_total").text(traffic_header);
                     var counts = this.normalizeTraffic(ia_data.live.traffic, ia_data.live.live_date);
