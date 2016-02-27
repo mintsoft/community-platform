@@ -1712,7 +1712,10 @@
         // filled with zeros in the days for which
         // we have no traffic
         normalizeTraffic: function(traffic, live_date) {
-            var result = [];
+            var result = {
+                traffic: [],
+                dates:[]
+            };
 
             // Data is updated every Monday
             // so the dates array will have last Monday as last entry
@@ -1725,11 +1728,17 @@
             
             for (var idx = 0; idx < traffic.dates.length; idx++) {
                 var temp_date = moment(traffic.dates[idx]);
-                result = iap.diffZeros(temp_date, last_date, result);
-                result.push(traffic.counts[idx]);
+                result.traffic = iap.diffZeros(temp_date, last_date, result.traffic);
+                result.traffic.push(traffic.counts[idx]);
                 last_date = temp_date;
             }
-
+            
+            var dayCount = last_date.diff(month_ago);
+            var currentDate = month_ago;
+            for(var dayIncrement; dayIncrement<dayCount; ++dayIncrement) {
+                result.dates.push(month_ago.add(dayIncrement, 'days'));
+            } 
+            
             return result;
         },
 
@@ -1781,15 +1790,15 @@
 
                 if ((ia_data.live.dev_milestone === "live") && ia_data.live.hasOwnProperty("traffic") && ia_data.live.traffic.dates.length) {
                     var traffic = $("#ia_traffic").get(0).getContext("2d");
-                    //var weekend_labels = this.getWeekends(ia_data.live.traffic.dates);
+                    var weekend_labels = this.getWeekends(ia_data.live.traffic.dates);
                     var traffic_header =  ": " + this.sumCounts(ia_data.live.traffic.counts) + " queries total";
                     $("#queries_total").text(traffic_header);
                     var counts = this.normalizeTraffic(ia_data.live.traffic, ia_data.live.live_date);
-                    $("#traffic_count").text(counts.length);
-                    var empty_labels = counts.map(function(obj){return "";});
+                    $("#traffic_count").text(counts.traffic.length);
+                    //var empty_labels = counts.map(function(obj){return "";});
 
                     var chart_data = {
-                        labels: empty_labels,
+                        labels: counts.dates,
                         datasets: [
                             {
                                 fillColor: "rgba(0,0,0,0)",
@@ -1798,7 +1807,7 @@
                                 pointStrokeColor: "#fff",
                                 pointHighlightFill: "#fff",
                                 pointHighlightStroke: "#4495d4",
-                                data: counts
+                                data: counts.traffic
                             }
                         ]
                     };
